@@ -376,7 +376,7 @@ class MoTA(Attack):
         grad_acc = self._base_gradient(data, delta, label)
         x_adv    = data + delta
 
-        for _ in range(1000):
+        for _ in range(2000):
             op_seq  = self._sample_op_names()
             x_trans = self._apply_ops(x_adv, op_seq)
             logits  = self.get_logits(x_trans)
