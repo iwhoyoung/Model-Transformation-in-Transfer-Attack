@@ -19,12 +19,12 @@ from transferattack.utils import (
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Generate transferable adversarial examples with SimAttack."
+        description="Generate transferable adversarial examples with MoTA."
     )
     parser.add_argument("-e", "--eval", action="store_true", help="evaluate generated adversarial images")
     parser.add_argument(
         "--attack",
-        default="simattack",
+        default="mota",
         type=str,
         choices=transferattack.attack_zoo.keys(),
         help="attack algorithm name",

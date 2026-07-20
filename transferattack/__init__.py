@@ -2,7 +2,7 @@ import importlib
 
 
 attack_zoo = {
-    "simattack": (".input_transformation.simattack", "SIMATT"),
+    "mota": (".input_transformation.mota", "MoTA"),
 }
 
 

@@ -1,1 +1,1 @@
-"""Input transformation attacks used by the SimAttack package."""
+"""Input transformation attacks used by the MoTA package."""

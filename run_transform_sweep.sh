@@ -8,7 +8,7 @@ SECONDS=0
 
 # Override these from the shell when needed, for example:
 # MODELS_STR="resnet18 resnet50" GPU_ID=1 BATCHSIZE=4 bash run_transform_sweep.sh
-ATTACK="${ATTACK:-simattack}"
+ATTACK="${ATTACK:-mota}"
 MODELS_STR="${MODELS_STR:-resnet18 densenet121 inception_v3 vit_base_patch16_224 vit_small_patch16_224}"
 TRANSFORM_NUMS_STR="${TRANSFORM_NUMS_STR:-1 5 10 20 50 100 200 500 1000 2000}"
 INPUT_DIR="${INPUT_DIR:-./data}"
@@ -24,6 +24,14 @@ NUM_WORKERS="${NUM_WORKERS:-4}"
 
 read -r -a MODELS <<< "${MODELS_STR}"
 read -r -a TRANSFORM_NUMS <<< "${TRANSFORM_NUMS_STR}"
+
+for model in "${MODELS[@]}"; do
+  if [[ "${model}" == "vit_small_patch16_224" && -z "${VIT_SMALL_CHECKPOINT:-}" ]]; then
+    echo "VIT_SMALL_CHECKPOINT must be set when MODELS_STR includes vit_small_patch16_224." >&2
+    echo "Example: export VIT_SMALL_CHECKPOINT=/path/to/pytorch_model.bin" >&2
+    exit 1
+  fi
+done
 
 LOG_DIR="${OUTPUT_ROOT}/logs"
 SUMMARY_FILE="${OUTPUT_ROOT}/runtime_summary.csv"

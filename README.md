@@ -1,21 +1,22 @@
-# Model-Transformation-in-Transfer-Attack
-
+# MoTA
 
 This repository contains a minimal implementation for the paper **So-Called Input Transformation-Based Attacks May be Model Transformation-Based Attacks**.
 
+Authors: Yang Hu, Tao Yang, Yuheng He, Qingyun Sun, Xiuli Bi, Bin Xiao, and Jianxin Li.
+
 The paper reinterprets conventional input transformation-based transfer attacks as model transformation-based attacks. During adversarial example generation, a transformation is not only an input augmentation. When it is composed with a surrogate model, it forms a transformed surrogate model. Optimizing adversarial examples over these transformed surrogate models can improve transferability across unseen target models.
 
-This codebase implements a SimAttack / MoTA-style transformation sampling attack. The core implementation is:
+This codebase implements **MoTA**, a Model Transformation-based Attack. The core implementation is:
 
 ```text
-transferattack/input_transformation/simattack.py
+transferattack/input_transformation/mota.py
 ```
 
 Use this code only for authorized robustness evaluation, reproducible research, or academic experiments.
 
 ## Method Overview
 
-`SIMATT` computes the gradient on the original surrogate model, then repeatedly samples composed transformations and accumulates gradients from the transformed surrogate models. The averaged gradient is used with momentum to update the adversarial perturbation.
+`MoTA` computes the gradient on the original surrogate model, then repeatedly samples composed transformations and accumulates gradients from the transformed surrogate models. The averaged gradient is used with momentum to update the adversarial perturbation.
 
 The implementation uses two transformation pools:
 
@@ -27,7 +28,7 @@ This design supports the paper's efficiency-effectiveness trade-off study: a sma
 ## Project Structure
 
 ```text
-simattack/
+mota/
 |-- main.py
 |-- requirements.txt
 |-- LICENSE
@@ -38,15 +39,15 @@ simattack/
     |-- utils.py
     `-- input_transformation/
         |-- __init__.py
-        `-- simattack.py
+        `-- mota.py
 ```
 
 Execution flow:
 
 ```text
 main.py
--> transferattack.load_attack_class("simattack")
--> transferattack/input_transformation/simattack.py::SIMATT
+-> transferattack.load_attack_class("mota")
+-> transferattack/input_transformation/mota.py::MoTA
 -> transferattack/attack.py::Attack
 -> transferattack/utils.py
 ```
@@ -56,12 +57,12 @@ main.py
 Python 3.8 to 3.10 and a CUDA GPU are recommended. The current entry point explicitly moves models and images with `.cuda()`, so generation and evaluation require a GPU.
 
 ```bash
-conda create -n simattack python=3.10 -y
-conda activate simattack
+conda create -n mota python=3.10 -y
+conda activate mota
 pip install -r requirements.txt
 ```
 
-`requirements.txt` uses PyTorch 1.12.1 with CUDA 11.6 by default. If your CUDA version is different, install the matching `torch` and `torchvision` first, then install `numpy pandas pillow timm tqdm`.
+`requirements.txt` uses PyTorch 1.12.1 with CUDA 11.6 by default and pins `numpy<2` for compatibility with this PyTorch generation. If your CUDA version is different, install the matching `torch` and `torchvision` first, then install `numpy<2 pandas pillow timm tqdm`.
 
 ## Data Format
 
@@ -97,10 +98,10 @@ Example command:
 
 ```bash
 python main.py \
-  --attack simattack \
+  --attack mota \
   --model resnet18 \
   --input_dir ./data \
-  --output_dir ./results/resnet18_simattack \
+  --output_dir ./results/resnet18_mota \
   --batchsize 8 \
   --epoch 10 \
   --transform_num 2000 \
@@ -110,9 +111,9 @@ python main.py \
 
 Key arguments:
 
-- `--attack simattack`: the only attack registered in this minimal repository.
+- `--attack mota`: the only attack registered in this minimal repository.
 - `--model resnet18`: source surrogate model. Any supported torchvision or timm model name can be used.
-- `--epoch 10`: number of optimization iterations, passed to `SIMATT(num_iter=...)`.
+- `--epoch 10`: number of optimization iterations, passed to `MoTA(num_iter=...)`.
 - `--transform_num 2000`: number of random transformations sampled per iteration.
 - `--eps 16`: perturbation budget. The code converts it to `16/255`.
 - `--batchsize`: computation is heavy when `transform_num=2000`; start with 4 or 8 for memory testing.
@@ -172,6 +173,8 @@ You can override models, GPU, batch size, and other settings with environment va
 MODELS_STR="resnet18 resnet50" GPU_ID=1 BATCHSIZE=4 EVAL_BATCHSIZE=16 bash run_transform_sweep.sh
 ```
 
+If `MODELS_STR` includes `vit_small_patch16_224`, set `VIT_SMALL_CHECKPOINT` before running the sweep script.
+
 ## Evaluation
 
 After adversarial examples are generated, run:
@@ -180,7 +183,7 @@ After adversarial examples are generated, run:
 python main.py \
   --eval \
   --input_dir ./data \
-  --output_dir ./results/resnet18_simattack \
+  --output_dir ./results/resnet18_mota \
   --batchsize 32 \
   --GPU_ID 0
 ```
@@ -203,30 +206,20 @@ $env:VIT_SMALL_CHECKPOINT = "<path-to>\pytorch_model.bin"
 
 This variable is not needed for torchvision models such as `resnet18` or `resnet50`.
 
-## Files Not Recommended for GitHub
 
-The `.gitignore` excludes:
-
-- `data/`
-- `results/`
-- `adv_data/`
-- `models/`
-- `*.pt`, `*.pth`, `*.bin`, `*.ckpt`
-
-These files usually contain datasets, model weights, or generated results. They can be large and may have separate license restrictions.
 
 ## Acknowledgements
 
-This repository is built on the TransferAttack framework and reuses its attack base class, data loading utilities, model loading utilities, and evaluation workflow. The transformation sampling implementation in `simattack.py` is used to reproduce MoTA-related experiments. Several transformation ideas are related to prior transfer-based adversarial attack methods including DIM, SSM, SIA, BSR, L2T, and OPS.
+This repository is built on the TransferAttack framework and reuses its attack base class, data loading utilities, model loading utilities, and evaluation workflow. The transformation sampling implementation in `mota.py` is used to reproduce MoTA-related experiments. Several transformation ideas are related to prior transfer-based adversarial attack methods including DIM, SSM, SIA, BSR, L2T, and OPS.
 
 ## Citation
 
-If you use this repository, please cite the corresponding paper. Replace the anonymous metadata with the final author list, venue pages, and DOI after publication:
+If you use this repository, please cite the corresponding paper. Replace venue pages and DOI with the final publication metadata after publication:
 
 ```bibtex
-@inproceedings{simattack_mota_2026,
+@inproceedings{mota_2026,
   title     = {So-Called Input Transformation-Based Attacks May be Model Transformation-Based Attacks},
-  author    = {Anonymous Author(s)},
+  author    = {Hu, Yang and Yang, Tao and He, Yuheng and Sun, Qingyun and Bi, Xiuli and Xiao, Bin and Li, Jianxin},
   booktitle = {Proceedings of ACM Multimedia},
   year      = {2026},
   note      = {Manuscript}
