@@ -7,7 +7,6 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torch.nn import Dropout
 from torchvision import transforms
 
 from ..attack import Attack
@@ -57,7 +56,6 @@ class TransformRegistry:
         self.register("vertical_shift", make_vertical_roll)
         self.register("horizontal_shift", make_horizontal_roll)
         self.register("ssm", lambda: SpectrumMixer(round(random.uniform(0.1, 0.9), 1)))
-        self.register("ide", lambda: DropoutEnsemble((0, 0.1, 0.2, 0.3, 0.4, 0.5)))
 
     def build(self, key: str):
         if key not in self._builders:
@@ -101,7 +99,7 @@ class TransformSampler:
     def pool_for(budget: int) -> List[str]:
         light = ["resizedpad", "random_crop", "shift"]
         heavy = ["rotate", "blockshuffle", "resizedpad",
-                 "random_crop", "ssm", "shift", "ide"]
+                 "random_crop", "ssm", "shift"]
         return light if budget <= 20 else heavy
 
     def draw(self, pool: List[str]) -> List[str]:
@@ -332,21 +330,11 @@ class SpectrumMixer:
         return self.idct_2d(x_dct * mask)
 
 
-class DropoutEnsemble:
-    def __init__(self, dropout_prob=(0, 0.1, 0.2, 0.3, 0.4, 0.5)):
-        self.dropout_prob = tuple(dropout_prob)
-
-    def __call__(self, x):
-        prob = random.choice(self.dropout_prob)
-        return Dropout(p=prob)(x) * (1 - prob)
-
-
 # ----------------------------------------------------------------------------
 # Backward-compatible aliases (so external code importing old names still works)
 # ----------------------------------------------------------------------------
 blockshuffle = BlockShuffle
 resizedpad = ResizePadResize
 ssm = SpectrumMixer
-ide = DropoutEnsemble
 vertical_shift = make_vertical_roll()
 horizontal_shift = make_horizontal_roll()
