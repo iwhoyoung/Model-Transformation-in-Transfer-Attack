@@ -21,7 +21,7 @@ Use this code only for authorized robustness evaluation, reproducible research, 
 The implementation uses two transformation pools:
 
 - `transform_num <= 20`: lightweight in-domain pool with `resizedpad`, `random_crop`, and `shift`.
-- `transform_num > 20`: full pool with `rotate`, `blockshuffle`, `resizedpad`, `random_crop`, `ssm`, `shift`, and `ide`.
+- `transform_num > 20`: full pool with `rotate`, `blockshuffle`, `resizedpad`, `random_crop`, `ssm`, and `shift`.
 
 This design supports the paper's efficiency-effectiveness trade-off study: a smaller number of transformations reduces running time, while a larger number of transformations expands the transformed surrogate model space and usually improves transferability.
 
