@@ -1,6 +1,6 @@
 # MoTA
 
-This repository contains a minimal implementation for the paper **So-Called Input Transformation-Based Attacks May be Model Transformation-Based Attacks**.
+This repository contains a minimal implementation for the paper **So-Called Input Transformation-Based Attacks Are Actually Model Transformation-Based Attacks**.
 
 Authors: Yang Hu, Tao Yang, Yuheng He, Qingyun Sun, Xiuli Bi, Bin Xiao, and Jianxin Li.
 
@@ -83,14 +83,7 @@ filename,label
 ILSVRC2012_val_00000001.JPEG,65
 ```
 
-For targeted attacks, add a `targeted_label` column:
-
-```csv
-filename,label,targeted_label
-ILSVRC2012_val_00000001.JPEG,65,970
-```
-
-`label` and `targeted_label` should use 0-based ImageNet class IDs consistent with torchvision/timm classification outputs.
+`label` should use 0-based ImageNet class IDs consistent with torchvision/timm classification outputs.
 
 ## Generate Adversarial Examples
 
@@ -117,13 +110,13 @@ Key arguments:
 - `--transform_num 2000`: number of random transformations sampled per iteration.
 - `--eps 16`: perturbation budget. The code converts it to `16/255`.
 - `--batchsize`: computation is heavy when `transform_num=2000`; start with 4 or 8 for memory testing.
-- `--alpha`: kept for entry-point compatibility. The current attack uses `eps / epoch` internally.
+- `--alpha`: kept for entry-point compatibility. The current attack uses `eps/epoch` internally.
 
 Generated adversarial images are saved to `--output_dir` with the same filenames as the input images.
 
 ## Transform Number Sweep
 
-The script [run_transform_sweep.sh](run_transform_sweep.sh) explores the running-time and attack-performance trade-off under different `transform_num` settings. It is intended for the experiment corresponding to **Figure 9: Pareto frontier of our proposed MoTA**. The script reduces the transformation number to measure how attack success rate changes with running time.
+The script [run_transform_sweep.sh](run_transform_sweep.sh) explores the running-time and attack-performance trade-off under different `transform_num` settings. It is intended for the experiment corresponding to **Figure 9: Pareto frontier of our proposed MoTA**. The script reduces the transformation number to measure how the attack success rate changes with running time.
 
 By default, it runs the following surrogate models:
 
@@ -217,12 +210,11 @@ This repository is built on the TransferAttack framework and reuses its attack b
 If you use this repository, please cite the corresponding paper. Replace venue pages and DOI with the final publication metadata after publication:
 
 ```bibtex
-@inproceedings{mota_2026,
-  title     = {So-Called Input Transformation-Based Attacks May be Model Transformation-Based Attacks},
+@inproceedings{hu2026so,
+  title     = {So-Called Input Transformation-Based Attacks Are Actually Model Transformation-Based Attacks},
   author    = {Hu, Yang and Yang, Tao and He, Yuheng and Sun, Qingyun and Bi, Xiuli and Xiao, Bin and Li, Jianxin},
-  booktitle = {Proceedings of ACM Multimedia},
+  booktitle={Proceedings of the 34th ACM International Conference on Multimedia},
   year      = {2026},
-  note      = {Manuscript}
 }
 ```
 
@@ -236,16 +228,3 @@ If you use the TransferAttack framework components, please also cite TransferAtt
   year    = {2026}
 }
 ```
-
-## References
-
-- TransferAttack codebase: https://github.com/Trustworthy-AI-Group/TransferAttack
-- Xiaosen Wang, Zhijin Ge, Bohan Liu, Zheng Fang, Fengfan Zhou, Ruixuan Zhang, Shaokang Wang, and Yuyang Luo. 2026. *Devling into Adversarial Transferability on Image Classification: Review, Benchmark, and Evaluation*. arXiv:2602.23117.
-- Yinpeng Dong, Fangzhou Liao, Tianyu Pang, Hang Su, Jun Zhu, Xiaolin Hu, and Jianguo Li. 2018. *Boosting Adversarial Attacks with Momentum*. CVPR.
-- Cihang Xie, Zhishuai Zhang, Yuyin Zhou, Song Bai, Jianyu Wang, Zhou Ren, and Alan L. Yuille. 2019. *Improving Transferability of Adversarial Examples with Input Diversity*. CVPR.
-- Junhua Zou, Zhisong Pan, Junyang Qiu, Xin Liu, Ting Rui, and Wei Li. 2020. *Improving the Transferability of Adversarial Examples with Resized-Diverse-Inputs, Diversity-Ensemble and Region Fitting*. ECCV.
-- Yuyang Long, Qilong Zhang, Boheng Zeng, Lianli Gao, Xianglong Liu, Jian Zhang, and Jingkuan Song. 2022. *Frequency Domain Model Augmentation for Adversarial Attack*. ECCV.
-- Xiaosen Wang, Zeliang Zhang, and Jianping Zhang. 2023. *Structure Invariant Transformation for Better Adversarial Transferability*. ICCV.
-- Kunyu Wang, Xuanran He, Wenxuan Wang, and Xiaosen Wang. 2024. *Boosting Adversarial Transferability by Block Shuffle and Rotation*. CVPR.
-- Rongyi Zhu, Zeliang Zhang, Susan Liang, Zhuo Liu, and Chenliang Xu. 2024. *Learning to Transform Dynamically for Better Adversarial Transferability*. CVPR.
-- Yu Guo, Weiquan Liu, Qingshan Xu, Shijun Zheng, Shujun Huang, Yu Zang, Siqi Shen, Chenglu Wen, and Cheng Wang. 2025. *Boosting Adversarial Transferability through Augmentation in Hypothesis Space*. CVPR.
